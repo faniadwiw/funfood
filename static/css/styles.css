@@ -1,0 +1,45 @@
+:root {
+  --bs-light-rgb: 241, 227, 201;
+  --bs-dark-rgb: 6, 7, 7;
+  --bs-primary-rgb: 242, 182, 18;
+  --bs-secondary-rgb: 215, 85, 59;
+  --bs-info-rgb: 0, 210, 248;
+  --bs-success-rgb: 91, 201, 0;
+  --bs-warning-rgb: 255, 204, 126;
+  --bs-danger-rgb: 255, 24, 100;
+}
+
+.bg-primary {
+  background-color: rgb(var(--bs-primary-rgb)) !important;
+}
+
+.bg-light {
+  background-color: rgb(var(--bs-light-rgb)) !important;
+}
+
+.bg-dark {
+  background-color: rgb(var(--bs-dark-rgb)) !important;
+}
+
+.navbar-dark .navbar-brand {
+  color: rgb(var(--bs-light-rgb)) !important;
+}
+
+.navbar-dark .nav-link {
+  color: rgba(var(--bs-light-rgb), 0.8) !important;
+}
+
+.navbar-dark .nav-link:hover,
+.navbar-dark .navbar-brand:hover {
+  color: rgb(var(--bs-primary-rgb)) !important;
+}
+
+.btn-primary {
+  background-color: rgb(var(--bs-primary-rgb));
+  border-color: rgb(var(--bs-primary-rgb));
+}
+
+.btn-primary:hover {
+  background-color: rgb(var(--bs-secondary-rgb));
+  border-color: rgb(var(--bs-secondary-rgb));
+}

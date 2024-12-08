@@ -1,0 +1,66 @@
+<!-- templates/home.html -->
+{% extends '../base.html' %}
+{% load static %} 
+{% block title %}Home - Masakin{% endblock %}
+{% block content %}
+<section class="hero bg-light py-5 text-center">
+  <h1>Welcome to Masakin</h1>
+  <p class="lead">Discover and share amazing recipes</p>
+</section>
+
+<section class="my-5">
+  <h2>Latest Recipes</h2>
+  <div class="row g-4">
+    {% for recipe in latest_recipes %}
+    <div class="col-md-4">
+      <div class="card h-100">
+        {% if recipe.image %}
+        <img
+          src="{{ recipe.image.url }}"
+          class="card-img-top"
+          alt="{{ recipe.title }}"
+          style="height: 200px; object-fit: cover"
+        />
+        {% else %}
+        <img
+          src="{% static 'images/default-recipe.jpg' %}"
+          class="card-img-top"
+          alt="Default recipe image"
+          style="height: 200px; object-fit: cover"
+        />
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ recipe.title }}</h5>
+          <p class="card-text">{{ recipe.description|truncatewords:20 }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted"
+              >By {{ recipe.user.username }}</small
+            >
+            <div class="text-primary">
+              <span class="me-1">{{ recipe.get_avg_rating }}</span>
+              <i class="bi bi-star-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="my-5">
+  <h2>Categories</h2>
+  <div class="row g-4">
+    {% for category in categories %}
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ category.name }}</h5>
+          <p class="card-text">{{ category.description|truncatewords:20 }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
