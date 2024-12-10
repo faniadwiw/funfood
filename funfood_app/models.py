@@ -26,8 +26,8 @@ class Recipe(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='recipes')
     title = models.CharField(max_length=100)
     description = models.TextField()
-    ingredients = models.TextField()
-    steps = models.TextField()
+    ingredients = models.TextField(help_text='Separate each ingredient with a newline.')
+    steps = models.TextField(help_text='Separate each step with a newline.')
     image = models.ImageField(upload_to='recipe/', blank=True, null=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='recipes')
     is_approved = models.BooleanField(default=False)
@@ -39,6 +39,12 @@ class Recipe(models.Model):
             total_rating = sum(review.rating for review in reviews)
             return round(total_rating / reviews.count(), 2)
         return 0
+    
+    def get_ingredients(self):
+        return self.ingredients.split('\n')
+    
+    def get_steps(self):
+        return self.steps.split('\n')
     
     def __str__(self):
         return self.title

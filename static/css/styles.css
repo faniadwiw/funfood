@@ -43,3 +43,8 @@
   background-color: rgb(var(--bs-secondary-rgb));
   border-color: rgb(var(--bs-secondary-rgb));
 }
+
+.active {
+  color: rgb(var(--bs-primary-rgb)) !important;
+  font-weight: 700;
+}

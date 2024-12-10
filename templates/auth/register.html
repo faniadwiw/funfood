@@ -1,0 +1,75 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth-form.css' %}">
+{% endblock  %}
+
+{% block extra_js %}
+<script src="{% static 'js/auth-form.js' %}"></script>
+{% endblock %}
+
+{% block title %}Daftar - Funfood{% endblock %}
+{% block content %}
+{% include 'components/toast.html' %}
+
+<div class="container my-5">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-12 col-md-8">
+      <div class="card shadow border-0">
+        <div class="card-body p-4 p-md-5">
+          <div class="text-center mb-4">
+            <h2 class="fw-bold">Daftar Akun</h2>
+            <p class="text-muted">Bergabunglah dengan komunitas kuliner kami</p>
+          </div>
+
+          <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row">
+              {% for field in form %}
+              <div class="{% if field.name == 'profile_image' %}col-12{% else %}col-md-6{% endif %} mb-4">
+                <label class="form-label fw-medium">{{ field.label }}</label>
+                <div class="input-group">
+                  {% if field.name == 'username' %}
+                  <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                  {% elif field.name == 'email' %}
+                  <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                  {% elif 'password' in field.name %}
+                  <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                  {% elif field.name == 'nickname' %}
+                  <span class="input-group-text"><i class="bi bi-person-badge-fill"></i></span>
+                  {% elif field.name == 'phone_number' %}
+                  <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+                  {% elif field.name == 'profile_image' %}
+                  <span class="input-group-text"><i class="bi bi-image-fill"></i></span>
+                  {% endif %}
+                  {{ field }}
+                </div>
+                {% if field.errors %}
+                <div class="text-danger small mt-1">
+                  {{ field.errors }}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="form-text small">{{ field.help_text }}</div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+              Daftar Sekarang
+            </button>
+            
+            <div class="text-center">
+              <p class="text-muted mb-0">Sudah punya akun? 
+                <a href="{% url 'login' %}" class="text-primary text-decoration-none">Login</a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

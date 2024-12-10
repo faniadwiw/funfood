@@ -1,11 +1,17 @@
-<!-- templates/home.html -->
 {% extends '../base.html' %}
 {% load static %} 
-{% block title %}Home - Masakin{% endblock %}
+{% block title %}Home - Funfood{% endblock %}
 {% block content %}
-<section class="hero bg-light py-5 text-center">
-  <h1>Welcome to Masakin</h1>
-  <p class="lead">Discover and share amazing recipes</p>
+{% include 'components/toast.html' %}
+
+<section class="hero bg-light text-center">
+  <div class="position-relative">
+    <img src="{% static 'image/home.png' %}" alt="banner-home" class="img-fluid w-100" style="opacity: 0.8;">
+    <div class="position-absolute top-50 start-50 translate-middle ">
+      <h1 class="text-white fw-bold">Selamat datang di FUNFOOD</h1>
+      <p class="lead text-white">Temukan dan bagikan resep-resep luar biasa</p>
+    </div>
+  </div>
 </section>
 
 <section class="my-5">
@@ -34,13 +40,14 @@
           <p class="card-text">{{ recipe.description|truncatewords:20 }}</p>
           <div class="d-flex justify-content-between align-items-center">
             <small class="text-muted"
-              >By {{ recipe.user.username }}</small
+              >Oleh {{ recipe.user.username }}</small
             >
             <div class="text-primary">
               <span class="me-1">{{ recipe.get_avg_rating }}</span>
               <i class="bi bi-star-fill"></i>
             </div>
           </div>
+          <a href="{% url 'recipe_detail' recipe.pk %}" class="btn btn-primary w-100 mt-3">Lihat</a>
         </div>
       </div>
     </div>
