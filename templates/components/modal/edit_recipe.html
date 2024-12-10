@@ -1,0 +1,73 @@
+<div class="modal fade" id="editRecipeModal{{ recipe.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Resep</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{% url 'edit_recipe' recipe.pk %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Kategori</label>
+                <select name="category" class="form-control" required>
+                  {% for category in categories %}
+                    <option value="{{ category.id }}" {% if category.id == recipe.category.id %}selected{% endif %}>
+                      {{ category.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Judul Resep</label>
+                <input type="text" name="title" class="form-control" value="{{ recipe.title }}" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Deskripsi</label>
+                <textarea name="description" class="form-control" rows="4" required>{{ recipe.description }}</textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Bahan-bahan (pisahkan dengan baris baru)</label>
+                <textarea name="ingredients" class="form-control" rows="6" required>{{ recipe.ingredients }}</textarea>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Langkah-langkah (pisahkan dengan baris baru)</label>
+                <textarea name="steps" class="form-control" rows="6" required>{{ recipe.steps }}</textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Foto Resep</label>
+                <input type="file" name="image" class="form-control" accept="image/*">
+                <small class="form-text text-muted">Biarkan kosong jika tidak ingin mengubah foto</small>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <img src="{{ recipe.image.url }}" alt="Preview" class="img-fluid" style="max-height: 200px;">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

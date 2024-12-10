@@ -46,6 +46,9 @@ class Recipe(models.Model):
     def get_steps(self):
         return self.steps.split('\n')
     
+    def is_favorited_by(self, user):
+        return self.favorites.filter(user=user).exists()
+    
     def __str__(self):
         return self.title
     

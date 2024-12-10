@@ -2,8 +2,6 @@
 {% load static %} 
 {% block title %}Home - Funfood{% endblock %}
 {% block content %}
-{% include 'components/toast.html' %}
-
 <section class="hero bg-light text-center">
   <div class="position-relative">
     <img src="{% static 'image/home.png' %}" alt="banner-home" class="img-fluid w-100" style="opacity: 0.8;">
@@ -14,7 +12,7 @@
   </div>
 </section>
 
-<section class="my-5">
+<section class="m-5">
   <h2>Latest Recipes</h2>
   <div class="row g-4">
     {% for recipe in latest_recipes %}
@@ -55,7 +53,7 @@
   </div>
 </section>
 
-<section class="my-5">
+<section class="m-5">
   <h2>Categories</h2>
   <div class="row g-4">
     {% for category in categories %}

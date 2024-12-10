@@ -1,6 +1,6 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="fixed-top navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" href="{% url 'home' %}">FUNFOOD</a>
+    <a class="navbar-brand fw-bolder" href="{% url 'home' %}">FUNFOOD</a>
     <button
       class="navbar-toggler"
       type="button"
@@ -10,20 +10,31 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
+      <ul class="navbar-nav ms-auto gap-2">
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Beranda</a>
         </li>
         {% if user.is_authenticated %}
-        <li class="nav-item">
-          <a class="nav-link" href="#">Resep Saya</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Profil</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Keluar</a>
-        </li>
+        <div class="btn-group">
+          <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item" href="{% url 'my_recipes' %}">Resep Saya</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Favorit</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Profil</a>
+            </li>
+            <div class="dropdown-divider"></div>
+            <li>
+              <a class="dropdown-item d-flex justify-content-center gap-2" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="bi bi-box-arrow-right"></i>Keluar</a> 
+            </li>
+          </ul>
+        </div>
         {% else %}
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}">Masuk</a>

@@ -9,6 +9,10 @@
   --bs-danger-rgb: 255, 24, 100;
 }
 
+*, body {
+  font-family: 'Funnel Display', sans-serif;
+}
+
 .bg-primary {
   background-color: rgb(var(--bs-primary-rgb)) !important;
 }
@@ -44,7 +48,63 @@
   border-color: rgb(var(--bs-secondary-rgb));
 }
 
+.btn-dark {
+  background-color: rgb(var(--bs-dark-rgb));
+  border-color: rgb(var(--bs-dark-rgb));
+}
+
+.btn-dark:hover {
+  background-color: rgb(var(--bs-secondary-rgb));
+  border-color: rgb(var(--bs-secondary-rgb));
+}
+
+.btn-dark:focus {
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-secondary-rgb), 0.5);
+}
+
+.btn-warning {
+  background-color: rgb(var(--bs-warning-rgb));
+  border-color: rgb(var(--bs-warning-rgb));
+}
+
+.btn-warning:hover {
+  background-color: rgb(var(--bs-secondary-rgb));
+  border-color: rgb(var(--bs-secondary-rgb));
+}
+
+.btn-warning:focus {
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-secondary-rgb), 0.5);
+}
+
+.btn-danger {
+  background-color: rgb(var(--bs-danger-rgb));
+  border-color: rgb(var(--bs-danger-rgb));
+}
+
+.btn-danger:hover {
+  background-color: rgb(var(--bs-secondary-rgb));
+  border-color: rgb(var(--bs-secondary-rgb));
+}
+
+.btn-danger:focus {
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-secondary-rgb), 0.5);
+}
+
+.bg-danger {
+  background-color: rgb(var(--bs-danger-rgb));
+}
+
+.bg-warning {
+  background-color: rgb(var(--bs-warning-rgb));
+}
+
+.bg-success {
+  background-color: rgb(var(--bs-success-rgb));
+}
+
 .active {
-  color: rgb(var(--bs-primary-rgb)) !important;
+  color: white;
+  text-decoration-line: underline;
+  border-radius: 4px;
   font-weight: 700;
 }

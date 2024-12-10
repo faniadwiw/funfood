@@ -1,0 +1,76 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}Resep Saya - Funfood{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Resep Saya</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+      <i class="bi bi-plus-lg me-2"></i>Tambah Resep
+    </button>
+  </div>
+
+  {% if recipes %}
+  <div class="row g-4">
+    {% for recipe in recipes %}
+    <div class="col-md-4">
+      <div class="card h-100">
+        <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}" style="height: 200px; object-fit: cover">
+        <div class="card-body">
+          <h5 class="card-title text-capitalize">{{ recipe.title }}</h5>
+          <p class="card-text text-capitalize">{{ recipe.description|truncatewords:20 }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">{{ recipe.created_at|date:"d M Y" }}</small>
+            <div class="text-primary">
+              <span class="me-1">{{ recipe.get_avg_rating }}</span>
+              <i class="bi bi-star-fill"></i>
+            </div>
+          </div>
+          <div class="mt-2">
+            {% if recipe.is_approved %}
+            <span class="badge bg-success">Disetujui</span>
+            {% else %}
+            <span class="badge bg-warning text-dark">Menunggu Persetujuan</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-footer bg-transparent border-0 p-3">
+          <div class="d-flex gap-2">
+            <a href="{% url 'recipe_detail' recipe.pk %}" class="btn btn-primary flex-grow-1">
+              <i class="bi bi-eye me-2"></i>Lihat
+            </a>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editRecipeModal{{ recipe.pk }}">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ recipe.pk }}">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    {% include 'components/modal/edit_recipe.html' with recipe=recipe %}
+    
+    <!-- Delete Modal -->
+    {% include 'components/modal/delete_recipe.html' %}
+
+    <!-- Add Modal -->
+    {% include 'components/modal/add_recipe.html' %}
+
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center my-5">
+    <i class="bi bi-journal-x display-1 text-muted"></i>
+    <p class="lead mt-3">Anda belum memiliki resep.</p>
+    <a href="#" class="btn btn-primary mt-2">
+      <i class="bi bi-plus-lg me-2"></i>Tambah Resep Pertama
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

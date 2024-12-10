@@ -1,41 +1,125 @@
 {% extends '../base.html' %}
 {% load static %}
-{% block title %}{{ recipe.title }} - Funfood{% endblock %}
-{% block content %}
-<div class="container my-5">
-  <div class="row">
-    <div class="col-md-8">
-      <h1>{{ recipe.title|upper }}</h1>
-      <div class="text-primary">
-        <span class="me-1">{{ recipe.get_avg_rating }}</span>
-        <i class="bi bi-star-fill"></i>
-      </div>
-      <p class="text-muted">Oleh {{ recipe.user.username }}</p>
 
-      <h3>Deskripsi</h3>
-      <p>{{recipe.description}}</p>
+{% block title %}{{ recipe.title|capfirst }} - Funfood{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/favorite.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container my-3">
+  <a href="javascript:history.back()" class="btn btn-secondary my-3">
+    <i class="bi bi-arrow-left me-2"></i>Kembali
+  </a>
+  <div class="row gy-4">
+    <div class="col-lg-6 col-md-6 col-12">
+      <img
+        src="{{ recipe.image.url }}"
+        alt="{{ recipe.title }}"
+        class="img-fluid rounded-3 object-fit-cover"
+        style="max-height: 45vh; width: 100%;"
+      />
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-12">
+      <h1 class="fw-bold text-break">
+        {{ recipe.title|upper }}
+        {% if not recipe.is_approved %}
+            <span class="badge fs-4 bg-warning text-dark">Menunggu Persetujuan<i class="bi bi-exclamation-triangle ms-2"></i></span>
+        {% endif %}
+      </h1>
+      <p class="text-justify lh-lg overflow-auto" style="max-height: 29vh;">
+        {{ recipe.description|capfirst }}
+      </p>
+      <div class="d-flex align-items-center gap-3">
+        <div class="text-primary">
+          <span class="me-1">{{ recipe.get_avg_rating }}</span>
+          <i class="bi bi-star-fill"></i>
+        </div>
       
-      <h3>Bahan - bahan</h3>
-      <ul>
+        {% if user.is_authenticated %}
+        <form action="{% url 'toggle_favorite' recipe.pk %}" method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-link text-danger p-0" title="Toggle favorite">
+            {% if is_favorited %}
+            <i class="bi bi-heart-fill"></i>
+            {% else %}
+            <i class="bi bi-heart"></i>
+            {% endif %}
+          </button>
+        </form>
+        {% endif %}
+      </div>
+      
+      <p class="text-muted">
+        {{ recipe.user.username }} | {{ recipe.created_at|date:"d M Y" }}
+      </p>
+    </div>
+  </div>
+
+  <div class="row gy-4 my-4">
+    <div class="col-lg-4 col-md-6 col-12">
+      <h3 class="fw-bold">Bahan-bahan</h3>
+      <ul class="list-unstyled">
         {% for ingredient in recipe.get_ingredients %}
         <li>{{ ingredient|capfirst }}</li>
         {% endfor %}
       </ul>
-      
-      <h3>Langkah - langkah</h3>
-      <ol>
+    </div>
+
+    <div class="col-lg-8 col-md-6 col-12">
+      <h3 class="fw-bold">Langkah-langkah</h3>
+      <ol class="list-group list-group-numbered">
         {% for step in recipe.get_steps %}
-        <li>{{ step }}</li>
+        <li class="list-group-item">{{ step }}</li>
         {% endfor %}
       </ol>
-
-      <a href="javascript:history.back()" class="btn btn-secondary mt-3">Kembali</a>
     </div>
-    <div class="col-md-4">
-      {% if recipe.image %}
-      <img src="{{recipe.image.url}}" alt="{{recipe.title}}" class="img-fluid" style="max-height: 40vh">
+  </div>
+
+  <div class="row mt-5">
+    <div class="col-12">
+      <h3>Ulasan ({{ reviews.count }})</h3>
+      {% if user.is_authenticated %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Tambah Ulasan</h5>
+          <form action="{% url 'add_review' recipe.pk %}" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Rating (1 - 5)</label>
+              {{ review_form.rating }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Komentar</label>
+              {{ review_form.comment }}
+            </div>
+            <button type="submit" class="btn btn-primary">Kirim Ulasan</button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if reviews %}
+      {% for review in reviews %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="card-subtitle mb-2">{{ review.user.username }}</h6>
+            <div class="text-warning">
+              {% for i in ''|ljust:review.rating %}
+              <i class="bi bi-star-fill"></i>
+              {% endfor %}
+            </div>
+          </div>
+          <p class="card-text text-wrap">{{ review.comment }}</p>
+          <small class="text-muted">{{ review.created_at|date:"d M Y" }}</small>
+        </div>
+      </div>
+      {% endfor %}
       {% else %}
-      <img src="{% static 'images/default-recipe.jpg' %}" alt="Default recipe image" class="img-fluid">
+      <p class="text-muted">Belum ada ulasan untuk resep ini.</p>
       {% endif %}
     </div>
   </div>
