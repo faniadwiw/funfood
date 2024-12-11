@@ -3,12 +3,9 @@
 
 {% block title %}{{ recipe.title|capfirst }} - Funfood{% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'js/favorite.js' %}"></script>
-{% endblock %}
-
 {% block content %}
 <div class="container my-3">
+  
   <a href="javascript:history.back()" class="btn btn-secondary my-3">
     <i class="bi bi-arrow-left me-2"></i>Kembali
   </a>
@@ -42,11 +39,7 @@
         <form action="{% url 'toggle_favorite' recipe.pk %}" method="post" class="d-inline">
           {% csrf_token %}
           <button type="submit" class="btn btn-link text-danger p-0" title="Toggle favorite">
-            {% if is_favorited %}
-            <i class="bi bi-heart-fill"></i>
-            {% else %}
-            <i class="bi bi-heart"></i>
-            {% endif %}
+            <i class="bi bi-heart{% if is_favorited %}-fill{% endif %}"></i>
           </button>
         </form>
         {% endif %}

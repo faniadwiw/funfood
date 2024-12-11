@@ -1,0 +1,79 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title mb-0">Daftar Pengguna</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Total Resep</th>
+              <th>Total Review</th>
+              <th>Status</th>
+              <th>Bergabung</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  {% if user.profile_image %}
+                  <img src="{{ user.profile_image.url }}" class="rounded-circle me-2" width="32" height="32">
+                  {% else %}
+                  <i class="bi bi-person-circle fs-4 me-2"></i>
+                  {% endif %}
+                  {{ user.username }}
+                </div>
+              </td>
+              <td>{{ user.email }}</td>
+              <td>
+                {% if user.is_superuser %}
+                <span class="badge bg-danger">Admin</span>
+                {% elif user.is_staff %}
+                <span class="badge bg-warning">Staff</span>
+                {% else %}
+                <span class="badge bg-info">User</span>
+                {% endif %}
+              </td>
+              <td class="text-center">{{ user.recipe_count }}</td>
+              <td class="text-center">{{ user.review_count }}</td>
+              <td>
+                {% if user.is_active %}
+                <span class="badge bg-success">Aktif</span>
+                {% else %}
+                <span class="badge bg-danger">Nonaktif</span>
+                {% endif %}
+              </td>
+              <td>{{ user.date_joined|date:"d M Y" }}</td>
+              <td>
+                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ user.id }}">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                {% if user.is_active %}
+                <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deactivateModal{{ user.id }}">
+                  <i class="bi bi-person-x"></i>
+                </button>
+                {% else %}
+                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#activateModal{{ user.id }}">
+                  <i class="bi bi-person-check"></i>
+                </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

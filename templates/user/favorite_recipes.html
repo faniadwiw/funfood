@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-0">Resep Favorit Saya</h2>
+        </div>
+    </div>
+
+    {% if recipes %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for recipe in recipes %}
+        <div class="col">
+            <div class="card h-100">
+                {% if recipe.image %}
+                <img src="{{ recipe.image.url }}" class="card-img-top object-fit-cover" style="height: 14rem" alt="{{ recipe.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title text-capitalize">{{ recipe.title }}</h5>
+                    <p class="card-text text-muted">{{ recipe.description|truncatewords:20|capfirst }}</p>
+                    <a href="{% url 'recipe_detail' recipe.pk %}" class="btn btn-primary w-100">Lihat</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <h4>Anda belum memiliki resep favorit</h4>
+        <p>Jelajahi resep dan tandai sebagai favorit untuk melihatnya di sini</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Jelajahi Resep</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

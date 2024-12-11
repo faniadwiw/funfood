@@ -3,14 +3,16 @@ from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.admin.views.decorators import staff_member_required
 from django.views.generic import TemplateView, DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
-from .models import Recipe, Category, Favorite
+from django.urls import reverse, reverse_lazy
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from .models import CustomUser, Recipe, Category, Favorite
+from django.db.models import Count
 from .forms import CustomAuthenticationForm, CustomUserCreationForm, ReviewForm, RecipeForm
 
-# home
+#------------------------------| PUBLIC |------------------------------
 class HomeView(TemplateView):
     template_name = 'public/home.html'
     
@@ -20,7 +22,9 @@ class HomeView(TemplateView):
         context["categories"] = Category.objects.all()[:6]
         return context
 
-# recipe detail
+class AboutView(TemplateView):
+    template_name = 'public/about.html'
+
 class RecipeDetailView(DetailView):
     model = Recipe
     template_name = 'public/recipe_detail.html'
@@ -48,7 +52,10 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Selamat datang, {user.username}.')
-                return redirect('home')
+                if user.is_superuser:
+                    return redirect('admin_dashboard')
+                else:
+                    return redirect('home')
             
         messages.error(request, 'Username/Email atau password salah.')
     else:
@@ -147,6 +154,19 @@ class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.error(self.request, 'Anda tidak memiliki izin untuk menghapus resep ini.')
         return HttpResponseRedirect(self.success_url)
     
+class FavoriteRecipesView(LoginRequiredMixin, ListView):
+    model = Recipe
+    template_name = 'user/favorite_recipes.html'
+    context_object_name = 'recipes'
+    login_url = reverse_lazy('login')
+    
+    def get_queryset(self):
+        return Recipe.objects.filter(favorites__user=self.request.user).order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 @login_required
 def add_review(request, pk):
@@ -175,4 +195,68 @@ def toggle_favorite(request, pk):
         else:
             Favorite.objects.create(user=request.user, recipe=recipe)
             messages.success(request, f'{recipe.title} ditambahkan ke favorit.')
-    return redirect('recipe_detail', pk=pk)
+        
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('recipe_detail', kwargs={'pk': pk})))
+    return HttpResponseBadRequest()
+
+
+#------------------------------| ADMIN |------------------------------
+@staff_member_required
+def admin_dashboard(request):
+    context = {
+        'total_users': CustomUser.objects.count(),
+        'total_recipes': Recipe.objects.count(),
+        'pending_recipes': Recipe.objects.filter(is_approved=False).count(),
+        'total_categories': Category.objects.count(),
+        'latest_recipes': Recipe.objects.order_by('-created_at')[:5],
+        'popular_categories': Category.objects.annotate(
+            recipe_count=Count('recipes')).order_by('-recipe_count')[:5]
+    }
+    return render(request, 'admin/dashboard.html', context)
+
+@staff_member_required
+def admin_recipes(request):
+    recipes = Recipe.objects.select_related('user', 'category').order_by('-created_at')
+
+    status_filter = request.GET.get('status', 'all')
+
+    if status_filter == 'pending':
+        recipes = recipes.filter(is_approved=False)
+    elif status_filter == 'approved':
+        recipes = recipes.filter(is_approved=True)
+        
+    context = {
+        'recipes': recipes,
+        'status_filter': status_filter
+    }
+    
+    return render(request, 'admin/recipes.html', context)
+
+@staff_member_required
+def admin_categories(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        if name:
+            Category.objects.create(name=name, description=description)
+            messages.success(request, 'Kategori berhasil ditambahkan.')
+        return redirect('admin_categories')
+    
+    categories = Category.objects.annotate(recipe_count=Count('recipes'))
+    return render(request, 'admin/categories.html', {'categories': categories})
+
+@staff_member_required
+def admin_users(request):
+    users = CustomUser.objects.annotate(
+        recipe_count=Count('recipes'),
+        review_count=Count('reviews')
+    )
+    return render(request, 'admin/users.html', {'users': users})
+
+@staff_member_required
+def admin_approve_recipe(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    recipe.is_approved = True
+    recipe.save()
+    messages.success(request, f'Resep "{recipe.title}" telah disetujui.')
+    return redirect('admin_recipes')
