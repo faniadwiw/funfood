@@ -20,6 +20,9 @@ urlpatterns = [
     path('recipe/favorites/', views.FavoriteRecipesView.as_view(), name='favorite_recipes'),
     path('recipe/<int:pk>/favorite/', views.toggle_favorite, name='toggle_favorite'),
     
+    #staff
+    path('staff/dashboard/', views.staff_dashboard, name='staff_dashboard'),
+    
     # admin
     path('a/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('a/recipes/', views.admin_recipes, name='admin_recipes'),

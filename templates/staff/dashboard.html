@@ -1,0 +1,119 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col mt-0">
+              <h5 class="card-title">Total Resep</h5>
+            </div>
+            <div class="col-auto">
+              <div class="stat text-primary">
+                <i class="bi bi-journal-text"></i>
+              </div>
+            </div>
+          </div>
+          <h1 class="mt-1 mb-3">{{ total_recipes }}</h1>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col mt-0">
+              <h5 class="card-title">Menunggu Persetujuan</h5>
+            </div>
+            <div class="col-auto">
+              <div class="stat text-warning">
+                <i class="bi bi-clock-history"></i>
+              </div>
+            </div>
+          </div>
+          <h1 class="mt-1 mb-3">{{ pending_recipes }}</h1>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col mt-0">
+              <h5 class="card-title">Kategori</h5>
+            </div>
+            <div class="col-auto">
+              <div class="stat text-primary">
+                <i class="bi bi-tags"></i>
+              </div>
+            </div>
+          </div>
+          <h1 class="mt-1 mb-3">{{ total_categories }}</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Resep Terbaru</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Judul</th>
+                  <th>Pembuat</th>
+                  <th>Kategori</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for recipe in latest_recipes %}
+                <tr>
+                  <td class="text-capitalize">{{ recipe.title }}</td>
+                  <td>{{ recipe.user.username }}</td>
+                  <td>{{ recipe.category.name }}</td>
+                  <td>
+                    {% if recipe.is_approved %}
+                    <span class="badge bg-success">Disetujui</span>
+                    {% else %}
+                    <span class="badge bg-warning">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ recipe.created_at|date:"d M Y" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-12 col-lg-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Kategori Populer</h5>  
+        </div>
+        <div class="card-body">
+          <div class="list-group">
+            {% for category in popular_categories %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              {{ category.name }}
+              <span class="badge bg-primary rounded-pill">{{ category.recipe_count }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

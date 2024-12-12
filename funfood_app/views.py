@@ -54,6 +54,8 @@ def login_view(request):
                 messages.success(request, f'Selamat datang, {user.username}.')
                 if user.is_superuser:
                     return redirect('admin_dashboard')
+                if user.is_staff:
+                    return redirect('staff_dashboard')
                 else:
                     return redirect('home')
             
@@ -198,6 +200,20 @@ def toggle_favorite(request, pk):
         
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('recipe_detail', kwargs={'pk': pk})))
     return HttpResponseBadRequest()
+
+
+#------------------------------| STAFF |------------------------------
+@staff_member_required
+def staff_dashboard(request):
+    context = {
+        'total_recipes': Recipe.objects.count(),
+        'pending_recipes': Recipe.objects.filter(is_approved=False).count(),
+        'total_categories': Category.objects.count(),
+        'latest_recipes': Recipe.objects.order_by('-created_at')[:5],
+        'popular_categories': Category.objects.annotate(
+            recipe_count=Count('recipes')).order_by('-recipe_count')[:5]
+    }
+    return render(request, 'staff/dashboard.html', context)
 
 
 #------------------------------| ADMIN |------------------------------
