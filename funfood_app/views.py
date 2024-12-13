@@ -6,11 +6,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views.generic import TemplateView, DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from .models import CustomUser, Recipe, Category, Favorite
 from django.db.models import Count
-from .forms import CustomAuthenticationForm, CustomUserCreationForm, ReviewForm, RecipeForm
+from .forms import CustomAuthenticationForm, CustomUserCreationForm, CustomUserChangeForm, ReviewForm, RecipeForm
 
 #------------------------------| PUBLIC |------------------------------
 class HomeView(TemplateView):
@@ -302,8 +303,11 @@ def staff_edit_category(request, pk):
 
 
 #------------------------------| ADMIN |------------------------------
-@staff_member_required
+@login_required
 def admin_dashboard(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     context = {
         'total_users': CustomUser.objects.count(),
         'total_recipes': Recipe.objects.count(),
@@ -315,8 +319,11 @@ def admin_dashboard(request):
     }
     return render(request, 'admin/dashboard.html', context)
 
-@staff_member_required
+@login_required
 def admin_recipes(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     recipes = Recipe.objects.select_related('user', 'category').order_by('-created_at')
 
     status_filter = request.GET.get('status', 'all')
@@ -328,13 +335,82 @@ def admin_recipes(request):
         
     context = {
         'recipes': recipes,
-        'status_filter': status_filter
+        'status_filter': status_filter,
+        'users': CustomUser.objects.filter(is_superuser=False),
+        'categories': Category.objects.all()
     }
     
     return render(request, 'admin/recipes.html', context)
 
-@staff_member_required
+@login_required
+def admin_add_recipe(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        form = RecipeForm(request.POST, request.FILES)
+        if form.is_valid():
+            recipe = form.save(commit=False)
+            recipe.user_id = request.POST.get('user')
+            recipe.is_approved = True
+            recipe.save()
+            messages.success(request, 'Resep berhasil ditambahkan.')
+            return redirect('admin_recipes')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error pada {field}: {error}')
+    return redirect('admin_recipes')
+
+@login_required
+def admin_edit_recipe(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    recipe = get_object_or_404(Recipe, pk=pk)
+    
+    if request.method == 'POST':
+        form = RecipeForm(request.POST, request.FILES, instance=recipe)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Resep "{recipe.title}" berhasil diperbarui.')
+            return redirect('admin_recipes')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error pada {field}: {error}')
+    return redirect('admin_recipes')
+
+@login_required
+def admin_delete_recipe(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    recipe = get_object_or_404(Recipe, pk=pk)
+    
+    if request.method == 'POST':
+        recipe.delete()
+        messages.success(request, f'Resep "{recipe.title}" berhasil dihapus.')
+        return redirect('admin_recipes')
+    
+    return redirect('admin_recipes')
+
+@login_required
+def admin_approve_recipe(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    recipe = get_object_or_404(Recipe, pk=pk)
+    recipe.is_approved = True
+    recipe.save()
+    messages.success(request, f'Resep "{recipe.title}" telah disetujui.')
+    return redirect('admin_recipes')
+
+@login_required
 def admin_categories(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
@@ -346,18 +422,76 @@ def admin_categories(request):
     categories = Category.objects.annotate(recipe_count=Count('recipes'))
     return render(request, 'admin/categories.html', {'categories': categories})
 
-@staff_member_required
+@login_required
 def admin_users(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     users = CustomUser.objects.annotate(
         recipe_count=Count('recipes'),
         review_count=Count('reviews')
     )
     return render(request, 'admin/users.html', {'users': users})
 
-@staff_member_required
-def admin_approve_recipe(request, pk):
-    recipe = get_object_or_404(Recipe, pk=pk)
-    recipe.is_approved = True
-    recipe.save()
-    messages.success(request, f'Resep "{recipe.title}" telah disetujui.')
-    return redirect('admin_recipes')
+@login_required
+def admin_add_user(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        try:
+            form = CustomUserCreationForm(request.POST, request.FILES)
+            if form.is_valid():
+                user = form.save(commit=False)
+                user.is_staff = request.POST.get('is_staff') == 'on'
+                user.is_superuser = False 
+                user.save()
+                messages.success(request, f'User {user.username} berhasil ditambahkan.')
+                return redirect('admin_users')
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'Error pada {field}: {error}')
+        except Exception as e:
+            messages.error(request, f'Gagal menambahkan user: {str(e)}')
+        return redirect('admin_users')
+    
+    # GET requests not allowed, redirect to users list
+    return redirect('admin_users')
+
+@login_required
+def admin_edit_user(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    user = get_object_or_404(CustomUser, pk=pk)
+    
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'User {user.username} berhasil diperbarui.')
+            return redirect('admin_users')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error pada {field}: {error}')
+    else:
+        form = CustomUserChangeForm(instance=user)
+    
+    return redirect('admin_users')
+
+@login_required
+def admin_delete_user(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    user = get_object_or_404(CustomUser, pk=pk)
+    
+    if request.method == 'POST':
+        user.delete()
+        messages.success(request, f'User {user.username} berhasil dihapus.')
+        return redirect('admin_users')
+    
+    return redirect('admin_users')
+

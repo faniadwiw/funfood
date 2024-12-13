@@ -1,6 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from .models import CustomUser, Review, Recipe, Category
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
+from .models import CustomUser, Review, Recipe
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(label='Username atau Email', widget=forms.TextInput(attrs={'class': 'form-control'}))
@@ -28,6 +28,18 @@ class CustomUserCreationForm(UserCreationForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
         
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'nickname', 'phone_number', 'profile_image', 'is_staff')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'nickname': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'profile_image': forms.FileInput(attrs={'class': 'form-control'}),
+            'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
 
 class ReviewForm(forms.ModelForm):
     class Meta:
@@ -60,3 +72,4 @@ class RecipeForm(forms.ModelForm):
             'image': forms.FileInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'})
         }
+        

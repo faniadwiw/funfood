@@ -44,9 +44,9 @@
               <tbody>
                 {% for category in categories %}
                 <tr>
-                  <td>{{ category.name }}</td>
-                  <td>{{ category.description }}</td>
-                  <td>{{ category.recipe_count }}</td>
+                  <td class="text-capitalize">{{ category.name }}</td>
+                  <td class="text-capitalize">{{ category.description|truncatewords:3 }}</td>
+                  <td class="text-center">{{ category.recipe_count }}</td>
                   <td>
                     <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ category.id }}">
                       <i class="bi bi-pencil"></i>

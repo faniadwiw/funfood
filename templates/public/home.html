@@ -60,8 +60,8 @@
     <div class="col-md-4">
       <div class="card h-100">
         <div class="card-body">
-          <h5 class="card-title">{{ category.name }}</h5>
-          <p class="card-text">{{ category.description|truncatewords:20 }}</p>
+          <h5 class="card-title text-capitalize">{{ category.name }}</h5>
+          <p class="card-text">{{ category.description|truncatewords:20|capfirst }}</p>
         </div>
       </div>
     </div>

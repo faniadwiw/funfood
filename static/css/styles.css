@@ -48,6 +48,21 @@
   border-color: rgb(var(--bs-secondary-rgb));
 }
 
+.btn-outline-primary {
+  color: rgb(var(--bs-primary-rgb));
+  border-color: rgb(var(--bs-primary-rgb));
+}
+
+.btn-outline-primary:hover {
+  background-color: rgb(var(--bs-primary-rgb));
+  color: white;
+  border: 1px solid rgb(var(--bs-primary-rgb));
+}
+
+.btn-active {
+  text-decoration: underline;
+}
+
 .btn-dark {
   background-color: rgb(var(--bs-dark-rgb));
   border-color: rgb(var(--bs-dark-rgb));

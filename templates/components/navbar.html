@@ -20,7 +20,11 @@
         {% if user.is_authenticated %}
         <div class="btn-group">
           <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if user.profile_image %}
             <img src="{{ user.profile_image.url }}" class="rounded-circle me-1" width="24" height="24" alt="Profile">
+            {% else %}
+            <i class="bi bi-person me-1"></i>
+            {% endif %}
             {{ user.username }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
@@ -37,11 +41,9 @@
           </ul>
         </div>
         {% else %}
-        <li class="nav-item">
-          <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}">Masuk</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if request.resolver_match.url_name == 'register' %}active{% endif %}" href="{% url 'register' %}">Daftar</a>
+        <li class="nav-item d-flex justify-content-center align-items-center gap-2">
+          <a class="btn btn-primary btn-sm {% if request.resolver_match.url_name == 'login' %}btn-active{% endif %}" href="{% url 'login' %}">Masuk</a>
+          <a class="btn btn-outline-primary btn-sm {% if request.resolver_match.url_name == 'register' %}btn-active{% endif %}" href="{% url 'register' %}">Daftar</a>
         </li>
         {% endif %}
       </ul>

@@ -31,7 +31,13 @@ urlpatterns = [
     # admin
     path('a/', views.admin_dashboard, name='admin_dashboard'),
     path('a/recipes/', views.admin_recipes, name='admin_recipes'),
+    path('a/recipe/add/', views.admin_add_recipe, name='admin_add_recipe'),
+    path('a/recipe/edit/<int:pk>/', views.admin_edit_recipe, name='admin_edit_recipe'),
+    path('a/recipe/delete/<int:pk>/', views.admin_delete_recipe, name='admin_delete_recipe'),
+    path('a/recipe/<int:pk>/approve/', views.admin_approve_recipe, name='admin_approve_recipe'),
     path('a/categories/', views.admin_categories, name='admin_categories'),
     path('a/users/', views.admin_users, name='admin_users'),
-    path('a/recipe/<int:pk>/approve/', views.admin_approve_recipe, name='admin_approve_recipe'),
+    path('a/users/add/', views.admin_add_user, name='admin_add_user'),
+    path('a/users/edit/<int:pk>/', views.admin_edit_user, name='admin_edit_user'),
+    path('a/users/delete/<int:pk>/', views.admin_delete_user, name='admin_delete_user'),
 ]
