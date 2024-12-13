@@ -215,6 +215,91 @@ def staff_dashboard(request):
     }
     return render(request, 'staff/dashboard.html', context)
 
+@staff_member_required
+def staff_recipes(request):
+    recipes = Recipe.objects.select_related('user', 'category').order_by('-created_at')
+    status_filter = request.GET.get('status', 'all')
+    
+    if status_filter == 'pending':
+        recipes = recipes.filter(is_approved=False)
+    elif status_filter == 'approved':
+        recipes = recipes.filter(is_approved=True)
+        
+    context = {
+        'recipes': recipes,
+        'status_filter': status_filter
+    }
+    
+    return render(request, 'staff/recipes.html', context)
+
+@staff_member_required
+def staff_approve_recipe(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    recipe.is_approved = True
+    recipe.save()
+    messages.success(request, f'Resep "{recipe.title}" telah disetujui.')
+    return redirect('staff_recipes')
+
+@staff_member_required
+def staff_reject_recipe(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    if request.method == 'POST':
+        recipe.is_approved = False
+        recipe.save()
+        messages.success(request, f'Resep "{recipe.title}" telah ditolak.')
+    return redirect('staff_recipes')
+
+@staff_member_required 
+def staff_categories(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+
+        # Check if category with same name exists
+        if Category.objects.filter(name=name).exists():
+            messages.error(request, f'Kategori dengan nama "{name}" sudah ada.')
+        elif name:
+            try:
+                Category.objects.create(name=name, description=description)
+                messages.success(request, 'Kategori berhasil ditambahkan.')
+                return redirect('staff_categories')
+            except Exception as e:
+                messages.error(request, f'Gagal menambahkan kategori: {str(e)}')
+
+        # Return with form data if validation fails
+        return render(request, 'staff/categories.html', {
+            'categories': Category.objects.annotate(recipe_count=Count('recipes')),
+            'form_data': {'name': name, 'description': description}
+        })
+
+    categories = Category.objects.annotate(recipe_count=Count('recipes'))
+    return render(request, 'staff/categories.html', {'categories': categories})
+
+@staff_member_required
+def staff_edit_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+
+        # Check if another category with same name exists
+        if Category.objects.exclude(pk=pk).filter(name=name).exists():
+            messages.error(request, f'Kategori dengan nama "{name}" sudah ada.')
+        elif name:
+            try:
+                category.name = name
+                category.description = description
+                category.save()
+                messages.success(request, 'Kategori berhasil diperbarui.')
+                return redirect('staff_categories')
+            except Exception as e:
+                messages.error(request, f'Gagal memperbarui kategori: {str(e)}')
+        
+        return redirect('staff_categories')
+        
+    return redirect('staff_categories')
+
 
 #------------------------------| ADMIN |------------------------------
 @staff_member_required

@@ -21,10 +21,15 @@ urlpatterns = [
     path('recipe/<int:pk>/favorite/', views.toggle_favorite, name='toggle_favorite'),
     
     #staff
-    path('staff/dashboard/', views.staff_dashboard, name='staff_dashboard'),
+    path('staff/', views.staff_dashboard, name='staff_dashboard'),
+    path('staff/recipes/', views.staff_recipes, name='staff_recipes'),
+    path('staff/recipe/<int:pk>/approve/', views.staff_approve_recipe, name='staff_approve_recipe'),
+    path('staff/recipe/<int:pk>/reject/', views.staff_reject_recipe, name='staff_reject_recipe'),
+    path('staff/categories/', views.staff_categories, name='staff_categories'),
+    path('staff/categories/<int:pk>/edit/', views.staff_edit_category, name='staff_edit_category'),
     
     # admin
-    path('a/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('a/', views.admin_dashboard, name='admin_dashboard'),
     path('a/recipes/', views.admin_recipes, name='admin_recipes'),
     path('a/categories/', views.admin_categories, name='admin_categories'),
     path('a/users/', views.admin_users, name='admin_users'),

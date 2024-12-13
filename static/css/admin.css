@@ -71,6 +71,15 @@
   flex: 1;
   min-height: 100vh;
   background: #f5f7fb;
+  transition: margin 0.3s;
+}
+
+.sidebar.collapsed {
+  margin-left: -220px;
+}
+
+.sidebar.collapsed + .main {
+  margin-left: 0;
 }
 
 .navbar-bg {
