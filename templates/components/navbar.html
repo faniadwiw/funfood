@@ -15,6 +15,9 @@
           <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Beranda</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'recipes' %}active{% endif %}" href="{% url 'recipes' %}">Resep</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">Tentang Kami</a>
         </li>
         {% if user.is_authenticated %}

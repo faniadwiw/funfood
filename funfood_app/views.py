@@ -10,7 +10,7 @@ from django.core.exceptions import PermissionDenied
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from .models import CustomUser, Recipe, Category, Favorite
-from django.db.models import Count
+from django.db.models import Count, Q
 from .forms import CustomAuthenticationForm, CustomUserCreationForm, CustomUserChangeForm, ReviewForm, RecipeForm
 
 #------------------------------| PUBLIC |------------------------------
@@ -25,6 +25,42 @@ class HomeView(TemplateView):
 
 class AboutView(TemplateView):
     template_name = 'public/about.html'
+
+class RecipeListView(ListView):
+    model = Recipe
+    template_name = 'public/recipes.html'
+    context_object_name = 'recipes'
+    paginate_by = 12
+    
+    def get_queryset(self):
+        queryset = Recipe.objects.filter(is_approved=True)
+        
+        q = self.request.GET.get('q')
+        if q:
+            queryset = queryset.filter(
+                Q(title__icontains=q) |
+                Q(description__icontains=q)
+            )
+        
+        category = self.request.GET.get('category')
+        if category:
+            queryset = queryset.filter(category_id=category)
+        
+        sort = self.request.GET.get('sort', '-created_at')
+        if sort == 'rating':
+            queryset = sorted(queryset, key=lambda x: x.get_avg_rating(), reverse=True)
+        else:
+            queryset = queryset.order_by(sort)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['current_category'] = self.request.GET.get('category')
+        context['search_query'] = self.request.GET.get('q', '')
+        context['sort'] = self.request.GET.get('sort', '-created_at')
+        return context
 
 class RecipeDetailView(DetailView):
     model = Recipe
