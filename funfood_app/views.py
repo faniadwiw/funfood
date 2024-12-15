@@ -17,6 +17,15 @@ from .forms import CustomAuthenticationForm, CustomUserCreationForm, CustomUserC
 class HomeView(TemplateView):
     template_name = 'public/home.html'
     
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            if request.user.is_superuser:
+                return redirect('admin_dashboard')
+            elif request.user.is_staff:
+                return redirect('staff_dashboard')
+                
+        return super().get(request, *args, **kwargs)
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["latest_recipes"] = Recipe.objects.filter(is_approved=True).order_by('-created_at')[:6] 
@@ -457,6 +466,52 @@ def admin_categories(request):
     
     categories = Category.objects.annotate(recipe_count=Count('recipes'))
     return render(request, 'admin/categories.html', {'categories': categories})
+
+@login_required
+def admin_edit_category(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+        
+    category = get_object_or_404(Category, pk=pk)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+
+        if Category.objects.exclude(pk=pk).filter(name=name).exists():
+            messages.error(request, f'Kategori dengan nama "{name}" sudah ada.')
+        elif name:
+            try:
+                category.name = name
+                category.description = description
+                category.save()
+                messages.success(request, 'Kategori berhasil diperbarui.')
+                return redirect('admin_categories')
+            except Exception as e:
+                messages.error(request, f'Gagal memperbarui kategori: {str(e)}')
+        
+        return redirect('admin_categories')
+        
+    return redirect('admin_categories')
+
+@login_required
+def admin_delete_category(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    category = get_object_or_404(Category, pk=pk)
+    
+    if request.method == 'POST':
+        try:
+            if category.recipes.exists():
+                messages.error(request, f'Kategori "{category.name}" tidak dapat dihapus karena masih memiliki resep.')
+            else:
+                category.delete()
+                messages.success(request, f'Kategori "{category.name}" berhasil dihapus.')
+        except Exception as e:
+            messages.error(request, f'Gagal menghapus kategori: {str(e)}')
+    
+    return redirect('admin_categories')
 
 @login_required
 def admin_users(request):

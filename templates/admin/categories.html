@@ -56,6 +56,12 @@
                     </button>
                   </td>
                 </tr>
+
+                <!-- Edit Modal -->
+                {% include 'admin/edit_categories.html' %}
+
+                <!-- Delete Modal -->
+                {% include 'admin/delete_categories.html' %}
                 {% endfor %}
               </tbody>
             </table>
@@ -65,4 +71,6 @@
     </div>
   </div>
 </div>
+
+
 {% endblock %}
